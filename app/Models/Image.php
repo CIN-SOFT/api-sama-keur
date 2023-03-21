@@ -14,7 +14,7 @@ class Image extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-    protected $fillable = array('name', 'type');
+    protected $fillable = array('name', 'type', 'product_id');
     protected $visible = array('name', 'type');
 
     public function product()
