@@ -6,10 +6,12 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\ImageTrait;
 
 class ProductController extends BaseController 
 {
 
+  use ImageTrait;
   /**
    * Display a listing of the resource.
    *
@@ -54,13 +56,15 @@ class ProductController extends BaseController
       if($request->is_ventilated || $request->is_ventilated == 1){
         $product->is_ventilated = true;
       }
-      if($request->price_type || $request->price_type == 1){
+      if(!$request->price_type){
         $product->price_type = "m";
       }
 
       $product->save();
 
-      $this->sendResponse($product, null, 201);
+      $images = $this->verifyAndUpload($request);
+
+      return $this->sendResponse($images, null, 201);
     } catch (\Throwable $th) {
       return $this->sendError($th->getMessage(), null, 402);
     }
