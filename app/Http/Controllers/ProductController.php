@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use App\Models\Image;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,31 +41,15 @@ class ProductController extends BaseController
   public function store(ProductRequest $request)
   {
     try {
-      $product = new Product();
-      $product->name = $request->name;
-      $product->description = $request->description;
-      $product->piece_number = $request->pieceNumber;
-      $product->user_id = Auth::user()->id;
-      $product->status = "pending";
-      $product->category_id = $request->categoryId;
-      $product->location = $request->location;
-      $product->bathroom = $request->bathroom;
-      $product->price = $request->price;
-      if($request->isAirConditioned || $request->isAirConditioned == 1){
-        $product->is_air_conditioned = true;
-      }
-      if($request->is_ventilated || $request->is_ventilated == 1){
-        $product->is_ventilated = true;
-      }
-      if(!$request->price_type){
-        $product->price_type = "m";
-      }
+      $product = Product::create($this->buildStorableProduct($request->all()));
 
-      $product->save();
-
-      $images = $this->verifyAndUpload($request);
-
-      return $this->sendResponse($images, null, 201);
+      $images = $this->processImagesUpload($request, $product->id);
+      
+      $responseData = array(
+        'product' => $product,
+        'images' => $images
+      );
+      return $this->sendResponse($responseData, null, 201);
     } catch (\Throwable $th) {
       return $this->sendError($th->getMessage(), null, 402);
     }
@@ -89,18 +74,30 @@ class ProductController extends BaseController
    */
   public function edit($id)
   {
-    
+     var_dump("nothing");
   }
 
   /**
    * Update the specified resource in storage.
    *
-   * @param  int  $id
-   * @return Response
+   * @param  int  $id, ProductRequest $productRequest
+   * @return Response $response
    */
-  public function update($id)
+  public function update($id, Request $request)
   {
-    
+    try{
+      $product = Product::where('id', $id)->update($this->buildStorableProduct($request->all(), 'update'));
+     
+      //$images = $this->processImagesUpload($request, $id);
+      
+      $responseData = array(
+        'product' => $product,
+        //'images' => $images
+      );
+      return $this->sendResponse($responseData, null, 201);
+    }catch(\Throwable $th){
+        return $this->sendError([], $th->getMessage(), 401);
+    }
   }
 
   /**
@@ -116,7 +113,7 @@ class ProductController extends BaseController
 
   public function listProductsWithoutFilter(){
     try{
-      $products = Product::with(['category', 'user', 'images'])->get();
+      $products = Product::with(['category', 'user', 'images'])->orderByDesc('updated_at')->get();
       return $this->sendResponse($products, null);
     }catch(\Throwable $th){
         return $this->sendResponse([], $th->getMessage());
@@ -125,6 +122,63 @@ class ProductController extends BaseController
 
   public function listProductsWithFilter(){
     
+  }
+
+  public function buildStorableProduct($request, $type = 'add'){
+    $product = array(
+      'name' => $request['name'],
+      'description' => $request['description'],
+      'piece_number' => $request['pieceNumber'],
+      'category_id' => $request['categoryId'],
+      'location' => $request['location'],
+      'bathroom' => $request['bathroom'],
+      'price' => $request['price'],
+    );
+   
+    if($type == 'add'){
+      $product['user_id'] = Auth::user()->id;
+      $product['status'] = "pending";
+    }else{
+      $product['status'] = $request['status'];
+    }
+    
+    if(array_key_exists('isAirConditioned', $request)){
+      $product['is_air_conditioned'] = true;
+    }
+    if(array_key_exists('isVentilated', $request)){
+      $product['is_ventilated'] = true;
+    }
+    if(!array_key_exists('priceType', $request)){
+      $product['price_type'] = "m";
+    }else{
+      $product['price_type'] = $request['priceType'];
+    }
+
+    return $product;
+  }
+
+  /**
+  * Function to process images upload to directory and save on database
+  * @param Request $request, int $productId
+  * @return Array $images
+  */
+  public function processImagesUpload(Request $request, $productId){
+    $images = $this->verifyAndUpload($request);
+      foreach ($images as $key => $image) {
+        if($key == 0){
+          $type = 'primary';
+        }else{
+          $type = 'other';
+        }
+        $dataImage = array(
+          'product_id' => $productId,
+          'name' => $image,
+          'type' => $type
+        );
+        $imageEntity =  new Image($dataImage);
+        $imageEntity->save();
+      }
+     return $images;
   }
 
 }

@@ -14,8 +14,8 @@ class Product extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-    protected $fillable = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type');
-    protected $visible = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type');
+    protected $fillable = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type', 'user_id');
+    protected $visible = array('id', 'name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type', 'user', 'images', 'category');
 
     public function user()
     {
