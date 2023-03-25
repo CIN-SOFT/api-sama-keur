@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Comment;
+use Illuminate\Support\Facades\Auth;
 
-class CommentController extends Controller 
+class CommentController extends BaseController 
 {
 
   /**
@@ -34,7 +36,17 @@ class CommentController extends Controller
    */
   public function store(Request $request)
   {
-    
+     try {
+      $comment = new Comment();
+      $comment->user_id = Auth::user()->id;
+      $comment->product_id = $request->productId;
+      $comment->note = $request->note;
+      $comment->content = $request->content;
+      $comment->save();
+      return $this->sendResponse($comment, null, 201);
+     } catch (\Throwable $th) {
+       return $this->sendError($th->getMessage(), null, 401);
+     }
   }
 
   /**
