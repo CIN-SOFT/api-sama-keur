@@ -36,5 +36,6 @@ Route::get('/login', function () {
 
 Route::prefix('v1')->group(function(){
     Route::get('list/category', [CategoryController::class, 'categoryList']);
-    Route::get('list/products', [ProductController::class, 'listProductsWithoutFilter']);
+    Route::get('list/products/{elementsNumber}', [ProductController::class, 'listProductsWithoutFilter']);
+    Route::get('details/product/{productId}', [ProductController::class, 'getDetailsProduct']);
 });

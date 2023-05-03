@@ -111,12 +111,21 @@ class ProductController extends BaseController
     
   }
 
-  public function listProductsWithoutFilter(){
+  public function listProductsWithoutFilter($elementsNumber){
     try{
-      $products = Product::with(['category', 'user', 'images'])->orderByDesc('updated_at')->get();
+      $products = Product::with(['category', 'user', 'images'])->orderByDesc('updated_at')->paginate($elementsNumber);
       return $this->sendResponse($products, null);
     }catch(\Throwable $th){
         return $this->sendResponse([], $th->getMessage());
+    }
+  }
+
+  public function getDetailsProduct($productId){
+    try{
+       $product = Product::where('id', $productId)->with(['category', 'user', 'images', 'comments'])->first();
+      return $this->sendResponse($product, null);
+    }catch(\Throwable $th){
+        return $this->sendResponse(null, $th->getMessage());
     }
   }
 
