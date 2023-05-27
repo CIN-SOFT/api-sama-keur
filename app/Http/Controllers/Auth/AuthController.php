@@ -76,6 +76,13 @@ class AuthController extends BaseController
             $user = Auth::user(); 
             $success['token'] =  $user->createToken('DaaraDjiFront')->plainTextToken; 
             $success['name'] =  $user->name;
+
+            if($user->status == "pending"){
+                return $this->sendError("Not active", 'Le compte est en cours d\'examen.', 401);
+            }
+            if($user->status == "suspended"){
+                return $this->sendError("Not active", 'Le compte est suspendu.', 401);
+            }
    
             return $this->sendResponse($success, 'User login successfully.');
         } 
