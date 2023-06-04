@@ -116,7 +116,7 @@ class ProductController extends BaseController
       $products = Product::with(['category', 'user', 'images'])->orderByDesc('updated_at')->paginate($elementsNumber);
       return $this->sendResponse($products, null);
     }catch(\Throwable $th){
-        return $this->sendResponse([], $th->getMessage());
+        return $this->sendError([], $th->getMessage());
     }
   }
 
@@ -125,7 +125,7 @@ class ProductController extends BaseController
        $product = Product::where('id', $productId)->with(['category', 'user', 'images', 'comments'])->first();
       return $this->sendResponse($product, null);
     }catch(\Throwable $th){
-        return $this->sendResponse(null, $th->getMessage());
+        return $this->sendError(null, $th->getMessage());
     }
   }
 
