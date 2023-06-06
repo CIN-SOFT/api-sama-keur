@@ -14,7 +14,7 @@ class Comment extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-    protected $fillable = array('content', 'note');
+    protected $fillable = array('content', 'note', 'product_id');
     protected $visible = array('content', 'note');
 
     public function user()

@@ -14,8 +14,8 @@ class Product extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-    protected $fillable = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type');
-    protected $visible = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type');
+    protected $fillable = array('name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type', 'user_id');
+    protected $visible = array('id', 'name', 'description', 'piece_number', 'status', 'location', 'is_air_conditioned', 'is_ventilated', 'bathroom', 'price', 'price_type', 'user', 'images', 'category', 'comments');
 
     public function user()
     {
@@ -30,6 +30,11 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany('App\Models\Image', 'product_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Models\Comment', 'product_id');
     }
 
 }

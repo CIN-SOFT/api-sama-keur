@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,8 +25,8 @@ Route::controller(AuthController::class)->group(function(){
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('category', CategoryController::class);
-
     Route::resource('product', ProductController::class);
+    Route::resource('comment', CommentController::class);
 });
 
 Route::get('/login', function () {
@@ -35,5 +36,6 @@ Route::get('/login', function () {
 
 Route::prefix('v1')->group(function(){
     Route::get('list/category', [CategoryController::class, 'categoryList']);
-    Route::get('list/products', [ProductController::class, 'listProductsWithoutFilter']);
+    Route::get('list/products/{elementsNumber}', [ProductController::class, 'listProductsWithoutFilter']);
+    Route::get('details/product/{productId}', [ProductController::class, 'getDetailsProduct']);
 });
