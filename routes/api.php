@@ -23,13 +23,17 @@ Route::controller(AuthController::class)->group(function(){
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('category', [CategoryController::class, 'store']);
-    Route::put('category', [CategoryController::class, 'update']);
-    Route::delete('category', [CategoryController::class, 'delete']);
+    Route::resource('category', CategoryController::class);
 
-    Route::resource('products', ProductController::class);
+    Route::resource('product', ProductController::class);
 });
 
-Route::prefix('v1')->group(function(){
+Route::get('/login', function () {
+    return response()->json(["Erreur" => "Vous n'etes pas autorise a acceder a cette ressource"], 401);
+})->name('login');
 
+
+Route::prefix('v1')->group(function(){
+    Route::get('list/category', [CategoryController::class, 'categoryList']);
+    Route::get('list/products', [ProductController::class, 'listProductsWithoutFilter']);
 });
