@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\BaseController as BaseController;
+use App\Mail\ActivateAccountMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 
 class AuthController extends BaseController
@@ -32,7 +34,8 @@ class AuthController extends BaseController
 
             $existUser = User::where('email', $request->email)->get();
 
-            if(count($existUser) > 0){
+            if(count($existUser) > 0){  
+                Mail::mailer('mailgun')->to($existUser[0]->email)->send(new ActivateAccountMail($existUser[0]));
                 return $this->sendError("User already exist", null, 422);
             }
 
@@ -49,9 +52,9 @@ class AuthController extends BaseController
             if($request->address){
                 $data['address'] = $request->address;
             }
-            $input = $request->all();
             
             $user = User::create($data);
+            Mail::mailer('mailgun')->to($user->email)->send(new ActivateAccountMail($user));
            
             $success['token'] =  $user->createToken('DaaraDjiFront')->plainTextToken;
             $success['name'] =  $user->name;
